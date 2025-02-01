@@ -142,65 +142,79 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-     htop
-     pkgs.tailscale
-     btop
-     htop
-     pciutils
-     yt-dlp
-     pkgs.cifs-utils
-     pkgs.samba
-     nmap
-     appimage-run
-     git
-     jmtpfs
-     gnumake
-     unzip
-     zip
-     gnupg
-     google-chrome
-     distrobox
-     ventoy
-     kitty
-     xorg.libXrandr
-     xorg.libxcb
-     ffmpeg-full
-     libevdev
-     libpulseaudio
-     xorg.libX11
-     pkgs.xorg.libxcb
-     xorg.libXfixes
-     libva
-     libvdpau
-     telegram-desktop
-     mpv
-     haruna
-     trayscale
-     xdotool
-     pwvucontrol
-     easyeffects
-     pipecontrol
-     wireplumber
-     pavucontrol
-     ncpamixer
-     carla
-     vlc
-     typora
-     neovim
-     vimPlugins.LazyVim
-     gh
-     gitui
-     cmake
-     ispell
-     gcc
-     go
-     geany
-     vscode
-     virt-manager
-     fastfetch
-     bitwarden-desktop
-     dunst
+
+  # Accessories
+  btop              # Resource monitor
+  dunst             # Notification daemon
+  fastfetch         # System information fetcher
+  htop              # System monitor
+  ventoy            # USB boot tool
+
+  # Graphics
+  kitty             # Terminal emulator (GPU-accelerated)
+  pkgs.xorg.libxcb  # Alternative variant of libxcb
+  xorg.libX11       # Core X11 library
+  xorg.libXfixes    # X11 library for miscellaneous fixes
+  xorg.libXrandr    # X11 library for screen resizing/rotation
+  xorg.libxcb       # X11 library for client communications
+
+  # Internet
+  distrobox         # Containerized environment manager
+  google-chrome     # Web browser
+  nmap              # Network scanner
+  pkgs.tailscale    # VPN tool for secure network access
+  telegram-desktop  # Messaging client
+  wget              # Command-line file downloader
+  yt-dlp            # YouTube (and more) downloader
+
+  # Office
+  libreoffice-fresh # Latest version of LibreOffice
+  typora            # Markdown editor for document editing
+
+  # Programming
+  cmake             # Build system
+  gcc               # Compiler collection
+  geany             # Lightweight IDE/editor
+  gh                # GitHub CLI
+  git               # Version control
+  gitui             # Terminal UI for Git
+  go                # Programming language
+  gnumake           # Build automation tool
+  ispell            # Spell checker
+  neovim            # Text editor
+  vimPlugins.LazyVim  # Enhanced Vim configuration
+  vscode            # Code editor
+
+  # Sound and Video
+  carla             # Audio plugin host
+  easyeffects       # Audio effects processor
+  ffmpeg-full       # Multimedia framework
+  haruna            # Audio player
+  libevdev          # Input device library
+  libpulseaudio     # Audio management
+  libva             # Video acceleration API
+  libvdpau          # Video acceleration for VDPAU
+  mpv               # Media player
+  ncpamixer         # Mixer utility
+  pavucontrol      # PulseAudio volume control
+  pipecontrol       # Media pipeline tool
+  pwvucontrol       # Volume control utility
+  trayscale       # (Media tool – adjust placement if needed)
+  vlc               # Multimedia player
+  wireplumber       # Audio session manager
+
+  # System Tools
+  appimage-run      # Run AppImage applications
+  bitwarden-desktop # Password manager
+  gnupg             # Encryption and signing tool
+  jmtpfs            # Mount MTP devices
+  pciutils          # Hardware info utility
+  pkgs.cifs-utils   # CIFS/SMB utilities
+  pkgs.samba        # SMB server/client tools
+  virt-manager      # Virtualization manager
+  xdotool           # X11 automation utility
+  unzip             # Archive extraction tool
+  zip               # Archive compression tool
 
   ];
 
