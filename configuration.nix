@@ -14,7 +14,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "NixBee"; # Define your hostname.
+  networking.hostName = "TenaciousNix"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -113,6 +113,9 @@
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
+  # Enable Tailscale
+  services.tailscale.enable = true;
+
   # Install firefox.
   programs.firefox.enable = true;
 
@@ -196,6 +199,7 @@
   go                # Programming language
   godot_4           # Free and Open Source 2D and 3D game engine
   gnumake           # Build automation tool
+  hugo              # Fast and modern static website engine
   ispell            # Spell checker
   neovim            # Text editor
   vimPlugins.LazyVim  # Enhanced Vim configuration
