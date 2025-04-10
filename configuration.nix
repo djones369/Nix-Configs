@@ -8,14 +8,19 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./vm.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "NixBee"; # Define your hostname.
+  networking.hostName = "Tenacious-Nix"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.extraHosts =
+    ''
+      staging.wflib.org 100.100.146.88
+    '';
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -126,10 +131,10 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Virt-manager
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
-  virtualisation.spiceUSBRedirection.enable = true;
-  
+  # virtualisation.libvirtd.enable = true;
+  # programs.virt-manager.enable = true;
+  # virtualisation.spiceUSBRedirection.enable = true;
+
   # Enable common container config files in /etc/containers
   virtualisation.containers.enable = true;
   virtualisation = {
@@ -141,7 +146,20 @@
       defaultNetwork.settings.dns_enabled = true;
     };
   };
-  
+
+
+  # Enable Cockpit
+  services.cockpit = {
+    enable = true;
+    port = 9090;
+    # openFirewall = true; # Please see the comments section
+    settings = {
+      WebService = {
+        AllowUnencrypted = true;
+      };
+    };
+  };
+
   # Rustdesk Background Service
   systemd.user.services.rustdesk = {
   description = "RustDesk Remote Desktop Service";
@@ -168,6 +186,7 @@
   filezilla         # Graphical FTP, FTPS and SFTP client
   htop              # System monitor
   rpi-imager        # Raspberry Pi Imaging Utility
+  starship	    # customizable prompt for any shell
   ventoy            # USB boot tool
 
 
@@ -176,28 +195,32 @@
   xorg.libxcb       # Alternative variant of libxcb
   xorg.libXfixes    # X11 library for miscellaneous fixes
   xorg.libXrandr    # X11 library for screen resizing/rotation
-  gimp-with-plugins # GNU Image Manipulation Program
+  # gimp-with-plugins # GNU Image Manipulation Program
   inkscape-with-extensions # Vector graphics editor
 
 
   # Internet
-  brave		    # Privacy-oriented browser
+  brave		    # Privacy-oriented browser for Desktop and Laptop computers
+  cockpit	    # Web-based graphical interface for servers
   discord           # All-in-one cross-platform voice and text chat for gamers
   distrobox         # Containerized environment manager
+  docker-compose    # define and run multi-container applications with Docker
   google-chrome     # Web browser
   nmap              # Network scanner
+  podman            # Program for managing pods, containers and container images
+  podman-compose    # Implementation of docker-compose with podman backend
+  podman-desktop    # A graphical tool for developing on containers and Kubernetes
   tailscale         # VPN tool for secure network access
   runelite          # Open source Old School RuneScape client
   wget              # Command-line file downloader
   yt-dlp            # YouTube (and more) downloader
   transmission_4    # Fast, easy and free BitTorrent client
   wireshark         # Powerful network protocol analyzer
-  vivaldi	    # Browser for our Friends
-  # pcloud          # Cloud Storage (Not Working)
+  # pcloud            # Cloud Storage (Not Working)
 
   # Office
-  joplin-desktop    # Open source note taking and to-do application
   libreoffice-fresh # Latest version of LibreOffice
+  # logseq	    # outliner notebook for organizing and sharing your personal knowledge base
   novelwriter       # Open source plain text editor designed for writing novels
   obsidian          # Powerful knowledge base that works on top of a local folder of plain text Markdown files
   scribus           # Desktop Publishing (DTP) and Layout program
@@ -213,13 +236,11 @@
   go                # Programming language
   godot_4           # Free and Open Source 2D and 3D game engine
   gnumake           # Build automation tool
-  gopls				# Official language server for the Go language
-  hexo-cli			# Command line interface for Hexo
-  hugo				# Fast and modern static website engine
+  hexo-cli	    # Command line interface for Hexo
+  hugo		    # Fast and modern static website engine
   ispell            # Spell checker
   neovim            # Text editor
-  nodejs_23			# framework for the V8 JavaScript engine
-  trip              # Simple and comprehensive vulnerability scanner for containers  
+  nodejs_23	    # framework for the V8 JavaScript engine
   vimPlugins.LazyVim  # Enhanced Vim configuration
   vscode            # Code editor
 
@@ -256,23 +277,37 @@
   clamav            # Antivirus engine designed for detecting Trojans, viruses, malware and other malicious threats
   clamtk            # lightweight front-end for ClamAV (Clam Antivirus)
   gnome-boxes       # Simple GNOME 3 application to access remote or virtual systems
-  gnome-disk-utility	# Udisks graphical front-end
+  gnome-disk-utility # Udisks graphical front-end
   gnupg             # Encryption and signing tool
   jmtpfs            # Mount MTP devices
   kitty             # Terminal emulator (GPU-accelerated)
+  menulibre         # menu editor with an easy-to-use interface
   pciutils          # Hardware info utility
   pika-backup       # Simple backups based on borg
   pkgs.samba        # SMB server/client tools
   remmina           # Remote desktop client written in GTK
   syncthing         # Open Source Continuous File Synchronization
   syncthing-tray    # Simple application tray for syncthing
-  virt-manager      # Virtualization manager
   xdotool           # X11 automation utility
   unzip             # Archive extraction tool
   zip               # Archive compression tool
   hplipWithPlugin   # HP Printer Drivers
-  warp-terminal     # Fast terminal with AI 
+  warp-terminal     # Fast terminal with AI
 
+
+  # Virt-Manager
+  spice			# Complete open source solution for interaction with virtualized desktop devices
+  spice-gtk 		# GTK 3 SPICE widget
+  spice-protocol	# Protocol headers for the SPICE protocol
+  virt-manager		# Virtualization manager
+  virt-viewer		# Viewer for remote virtual machines
+  virtio-win	    	# Windows VirtIO Drivers
+  win-spice		# Windows SPICE Drivers
+  swtpm
+  OVMF
+  qemu			# Generic and open source machine emulator and virtualizer
+  qemu_kvm		# Generic and open source machine emulator and virtualizer
+  
   # Rustdesk
   rustdesk-flutter
   rustdesk-server
@@ -280,18 +315,19 @@
   ];
 
   # Unstable Apps
-  
+
   # Service to start
-  
+
   # Enable Auto Optimising the store
   nix.settings.auto-optimise-store = true;
 
   nix.gc = {
     automatic = true;
     dates = "daily";
-    options = "--delete-older-than 5d";
     # options = "--keep-generations 5";
+    options = "--delete-older-than 5";  # Keep the latest 5 generations
   };
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
