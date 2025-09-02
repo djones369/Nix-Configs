@@ -125,6 +125,10 @@ virtualisation.spiceUSBRedirection.enable = true;
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
+  # --- Enable Flatpak  ---
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+
   # --- Flatpak auto-update ---
   systemd.services."flatpak-update" = {
     description = "Update Flatpak applications";
@@ -134,14 +138,23 @@ virtualisation.spiceUSBRedirection.enable = true;
     };
   };
 
-  systemd.timers."flatpak-update" = {
-    description = "Run Flatpak update daily";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
+
+
+  # --- Enable Flatpak  ---
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  xdg.portal.config.common.default = "gtk";
+
+  # --- Flatpak auto-update ---
+  systemd.services."flatpak-update" = {
+    description = "Update Flatpak applications";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.flatpak}/bin/flatpak update -y";
     };
   };
+  
   # --- End Flatpak auto-update ---
 
   # Enable Nix experimental features and Flakes
