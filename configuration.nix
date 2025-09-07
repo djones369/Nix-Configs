@@ -125,10 +125,6 @@ virtualisation.spiceUSBRedirection.enable = true;
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
-  # --- Enable Flatpak  ---
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
-
   # --- Flatpak auto-update ---
   systemd.services."flatpak-update" = {
     description = "Update Flatpak applications";
@@ -138,23 +134,14 @@ virtualisation.spiceUSBRedirection.enable = true;
     };
   };
 
-
-
-  # --- Enable Flatpak  ---
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  xdg.portal.config.common.default = "gtk";
-
-  # --- Flatpak auto-update ---
-  systemd.services."flatpak-update" = {
-    description = "Update Flatpak applications";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.flatpak}/bin/flatpak update -y";
+  systemd.timers."flatpak-update" = {
+    description = "Run Flatpak update daily";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
     };
   };
-  
   # --- End Flatpak auto-update ---
 
   # Enable Nix experimental features and Flakes
@@ -240,17 +227,25 @@ virtualisation.spiceUSBRedirection.enable = true;
      jekyll
      ghost-cli
      marp-cli
+     mumble
   ];
 
-  # Enable Auto Optimising the store
-  nix.settings.auto-optimise-store = true;
+# --- Weekly Garbage CLeaner --- #
 
+  # If you use systemd-boot:
+  boot.loader.systemd-boot.configurationLimit = 5;
+
+  # Automatic garbage collection (adjust schedule/retention as you like)
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    # options = "--delete-older-than 5d";
-    options = "--keep-generations 5";
+    dates = "weekly";                 # or "monthly", "daily", "Sat 03:00", etc.
+    options = "--delete-older-than 14d";
   };
+
+# ---  Keep the /nix/store tidy automatically --- #
+  nix.settings.auto-optimise-store = true;
+
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
