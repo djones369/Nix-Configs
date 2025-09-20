@@ -10,12 +10,14 @@
       ./hardware-configuration.nix
     ];
 
-  # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/vda";
-  boot.loader.grub.useOSProber = true;
+  #--- Updated Kernel ---#
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  networking.hostName = "nix-vm"; # Define your hostname.
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking.hostName = "busy-bee"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -82,34 +84,19 @@
   users.users.dave = {
     isNormalUser = true;
     description = "Dave J";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "kvm" "video" "render" "audio" ];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "video" "render" "audio" ];
     packages = with pkgs; [
-    #  thunderbird
+    thunderbird
+    rustdesk-flutter
+    rustdesk-server
     ];
   };
 
-  # Enable tailscale
-  services.tailscale.enable = true;
 
-  #----=[ Fonts ]=----#
-  fonts.packages = with pkgs; [
-    noto-fonts
-    ubuntu_font_family
-    noto-fonts-emoji
-    liberation_ttf
-    fira-code
-    fira-code-symbols
-    mplus-outline-fonts.githubRelease
-    dina-font
-    fira
-    nerd-fonts.monaspace
-    nerd-fonts.inconsolata
-    nerd-fonts.symbols-only
+  environment.variables.PATH = [
+    "${config.users.users.dave.home}/.emacs.d/bin"
   ];
 
-  # Flatpak
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -117,13 +104,58 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Enable Nix experimental features and Flakes 4-17-24
+  #--- Tailscale Services ---#
+  # services.tailscale.enable = true;
+  # services.tailscale.package = pkgs.tailscale.overrideAttrs (_: { doCheck = false; });
+  # networking.nftables.enable = true;
+  # services.tailscale.useRoutingFeatures = "server"; # or "client"
+
+### RustDesk Server Info for NixOS
+
+  # Rustdesk Background Service
+  systemd.user.services.rustdesk = {
+  description = "RustDesk Remote Desktop Service";
+  after = [ "network.target" ];
+  serviceConfig = {
+    # ExecStart = "/run/current-system/sw/bin/rustdesk --service";
+    ExecStart = "rustdesk --service";
+    Restart = "always";
+    RestartSec = 5;
+  };
+  wantedBy = [ "default.target" ];
+};
+
+virtualisation.spiceUSBRedirection.enable = true;
+
+  # --- Enable Flatpak  ---
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+
+  # --- Flatpak auto-update ---
+  systemd.services."flatpak-update" = {
+    description = "Update Flatpak applications";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.flatpak}/bin/flatpak update -y";
+    };
+  };
+
+  systemd.timers."flatpak-update" = {
+    description = "Run Flatpak update daily";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+    };
+  };
+  # --- End Flatpak auto-update ---
+
+  # Enable Nix experimental features and Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Virt-manager
-  # virtualisation.libvirtd.enable = true;
-  # programs.virt-manager.enable = true;
-  # virtualisation.spiceUSBRedirection.enable = true;
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
 
   # Enable common container config files in /etc/containers
   virtualisation.containers.enable = true;
@@ -138,152 +170,126 @@
   };
 
 
-  # Enable Cockpit
-  services.cockpit = {
-    enable = true;
-    port = 9090;
-    # openFirewall = true; # Please see the comments section
-    settings = {
-      WebService = {
-        AllowUnencrypted = true;
-      };
-    };
-  };
-
-  # Rustdesk Background Service
-  systemd.user.services.rustdesk = {
-  description = "RustDesk Remote Desktop Service";
-  after = [ "network.target" ];
-  serviceConfig = {
-    ExecStart = "/run/current-system/sw/bin/rustdesk --service";
-    Restart = "always";
-    RestartSec = 5;
-  };
-  wantedBy = [ "default.target" ];
-};
-
-
-
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-  # Accessories
-  btop              # Resource monitor
-  dunst             # Notification daemon
-  fastfetch         # System information fetcher
-  filezilla         # Graphical FTP, FTPS and SFTP client
-  htop              # System monitor
-  rpi-imager        # Raspberry Pi Imaging Utility
-  starship	    # customizable prompt for any shell
+     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+     gnome-software
+     wget
+     htop
+     # pkgs.tailscale
+     # (pkgs.tailscale.overrideAttrs (_: { doCheck = false; }))
+     pciutils
+     yt-dlp
+     pkgs.cifs-utils
+     pkgs.samba
+     nmap
+     appimage-run
+     git
+     github-desktop
+     gnumake
+     unzip
+     zip
+     google-chrome
+     gnupg
+     distrobox
+     kitty
+     xorg.libXrandr
+     xorg.libxcb
+     ffmpeg-full
+     libevdev
+     libpulseaudio
+     xorg.libX11
+     pkgs.xorg.libxcb
+     xorg.libXfixes
+     libva
+     libvdpau
+     telegram-desktop
+     mpv
+     xdotool
+     pwvucontrol
+     easyeffects
+     pipecontrol
+     wireplumber
+     pavucontrol
+     ncpamixer
+     carla
+     vlc
+     neovim
+     vimPlugins.LazyVim
+     gh
+     gitui
+     cmake
+     ispell
+     gcc
+     go
+     geany
+     vscode
+     virt-manager
+     fastfetch
+     ghostty
+     bitwarden-desktop
+     nerd-fonts.symbols-only
+     boxbuddy
+     mate.mate-terminal
+     fastfetch
+     starship
+     hexo-cli
+     hugo
+     jekyll
+     ghost-cli
+     marp-cli
+     mumble
+     nil
+     zed-editor
+     discord
+     remmina
+     tshark
+     wireshark
+     obsidian
+     gimp3-with-plugins
+     tor
+     tor-browser
+     brave
 
+# --- (Doom) Emacs --- #
+     emacs
+     ripgrep
+     # optional dependencies
+     coreutils # basic GNU utilities
+     fd
+     clang
+     emacsPackages.doom
+     emacsPackages.doom-themes
+     gnupg
 
-
-  # Graphics
-  xorg.libX11       # Core X11 library
-  xorg.libxcb       # Alternative variant of libxcb
-  xorg.libXfixes    # X11 library for miscellaneous fixes
-  xorg.libXrandr    # X11 library for screen resizing/rotation
-  # gimp-with-plugins # GNU Image Manipulation Program
-  inkscape-with-extensions # Vector graphics editor
-
-
-  # Internet
-  brave		    # Privacy-oriented browser for Desktop and Laptop computers
-  cockpit	    # Web-based graphical interface for servers
-  discord           # All-in-one cross-platform voice and text chat for gamers
-  distrobox         # Containerized environment manager
-  docker-compose    # define and run multi-container applications with Docker
-  google-chrome     # Web browser
-  nmap              # Network scanner
-  podman            # Program for managing pods, containers and container images
-  podman-compose    # Implementation of docker-compose with podman backend
-  podman-desktop    # A graphical tool for developing on containers and Kubernetes
-  tailscale         # VPN tool for secure network access
-  runelite          # Open source Old School RuneScape client
-  wget              # Command-line file downloader
-  yt-dlp            # YouTube (and more) downloader
-  transmission_4    # Fast, easy and free BitTorrent client
-  wireshark         # Powerful network protocol analyzer
-  # pcloud            # Cloud Storage (Not Working)
-
-  # Office
-  libreoffice-fresh # Latest version of LibreOffice
-  # logseq	    # outliner notebook for organizing and sharing your personal knowledge base
-  novelwriter       # Open source plain text editor designed for writing novels
-  obsidian          # Powerful knowledge base that works on top of a local folder of plain text Markdown files
-  scribus           # Desktop Publishing (DTP) and Layout program
-  typora            # Markdown editor for document editing
-
-  # Programming
-  cmake             # Build system
-  gcc               # Compiler collection
-  geany             # Lightweight IDE/editor
-  gh                # GitHub CLI
-  git               # Version control
-  gitui             # Terminal UI for Git
-  go                # Programming language
-  godot_4           # Free and Open Source 2D and 3D game engine
-  gnumake           # Build automation tool
-  hexo-cli	    # Command line interface for Hexo
-  hugo		    # Fast and modern static website engine
-  ispell            # Spell checker
-
-  vimPlugins.LazyVim  # Enhanced Vim configuration
-  vscode            # Code editor
-
-  # Sound and Video
-  audacity          # Sound editor with graphical UI
-  blender-hip       # 3D Creation/Animation/Publishing System
-  carla             # Audio plugin host
-  cheese            # Take photos and videos with your webcam, with fun graphical effects
-  easyeffects       # Audio effects processor
-  ffmpeg-full       # Multimedia framework
-  flameshot         # Powerful yet simple to use screenshot software
-  handbrake         # Tool for converting video files and ripping DVDs
-  haruna            # Audio player
-  libevdev          # Input device library
-  libpulseaudio     # Audio management
-  libva             # Video acceleration API
-  libvdpau          # Video acceleration for VDPAU
-  mumble            # Low-latency, high quality voice chat software
-  mpv               # Media player
-  ncpamixer         # Mixer utility
-  obs-studio        # Free and open source software for video recording and live streaming
-  pavucontrol      # PulseAudio volume control
-  pipecontrol       # Media pipeline tool
-  pwvucontrol       # Volume control utility
-  shotcut           # Free, open source, cross-platform video editor
-  trayscale       # (Media tool – adjust placement if needed)
-  vlc               # Multimedia player
-  wireplumber       # Audio session manager
-
-  # System Tools
-  angryipscanner    # IP Scanner (That's ANGRY!)
-  appimage-run      # Run AppImage applications
-  bitwarden-desktop # Password manager
-  clamav            # Antivirus engine designed for detecting Trojans, viruses, malware and other malicious threats
-  clamtk            # lightweight front-end for ClamAV (Clam Antivirus)
-  gnome-boxes       # Simple GNOME 3 application to access remote or virtual systems
-  gnome-disk-utility # Udisks graphical front-end
-  gnupg             # Encryption and signing tool
-  jmtpfs            # Mount MTP devices
-  kitty             # Terminal emulator (GPU-accelerated)
-  menulibre         # menu editor with an easy-to-use interface
-  pciutils          # Hardware info utility
-  pika-backup       # Simple backups based on borg
-  pkgs.samba        # SMB server/client tools
-  remmina           # Remote desktop client written in GTK
-  syncthing         # Open Source Continuous File Synchronization
-  # syncthing-tray    # Simple application tray for syncthing
-  xdotool           # X11 automation utility
-  unzip             # Archive extraction tool
-  zip               # Archive compression tool
-  hplip             # HP Printer Drivers
-  warp-terminal     # Fast terminal with AI
+     # Markdown
+     pandoc
+     # Shell
+     shellcheck
+     # Org export
+     texlive.combined.scheme-small
+     # Extras
+     imagemagick sqlite aspell
 
   ];
+
+# --- Weekly Garbage CLeaner --- #
+
+  # If you use systemd-boot:
+  boot.loader.systemd-boot.configurationLimit = 5;
+
+  # Automatic garbage collection (adjust schedule/retention as you like)
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";                 # or "monthly", "daily", "Sat 03:00", etc.
+    options = "--delete-older-than 14d";
+  };
+
+# ---  Keep the /nix/store tidy automatically --- #
+  nix.settings.auto-optimise-store = true;
+
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -296,7 +302,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -313,3 +319,4 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
+
