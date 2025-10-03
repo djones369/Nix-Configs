@@ -4,20 +4,31 @@
 
 { config, pkgs, ... }:
 
+let 
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-25.05.tar.gz";
+in 
+
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      (import "${home-manager}/nixos")
     ];
 
-  #--- Updated Kernel ---#
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+   home-manager.useUserPackages = true;
+   home-manager.useGlobalPkgs = true;
+   home-manager.backupFileExtension = "backup";
+   home-manager.users.dave = import ./home.nix;
+
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "busy-bee"; # Define your hostname.
+  #--- Updated Kernel ---#
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  networking.hostName = "NixBee"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -52,11 +63,22 @@
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.budgie.enable = true;
 
+  # NEW: autostart a polkit agent in your session (needed for virt-manager auth)
+  services.xserver.displayManager.sessionCommands = ''
+    if command -v /run/current-system/sw/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/dev/null; then
+      /run/current-system/sw/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+    fi
+  '';
+
+  # Enable the qtile window manager (optional; LightDM lets you pick it at login)
+  services.xserver.windowManager.qtile.enable = true;
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
+
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -84,14 +106,18 @@
   users.users.dave = {
     isNormalUser = true;
     description = "Dave J";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "video" "render" "audio" ];
-    # extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "video" "kvm" "render" "audio" ];
     packages = with pkgs; [
     thunderbird
     rustdesk-flutter
     rustdesk-server
     ];
   };
+
+  environment.variables.PATH = [
+    "${config.users.users.dave.home}/.emacs.d/bin"
+  ];
+
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -100,9 +126,10 @@
   nixpkgs.config.allowUnfree = true;
 
   #--- Tailscale Services ---#
-  services.tailscale.enable = true;
-  services.tailscale.package = pkgs.tailscale.overrideAttrs (_: { doCheck = false; });
-  networking.nftables.enable = true;
+  # services.tailscale.enable = true;
+  # services.tailscale.package = pkgs.tailscale.overrideAttrs (_: { doCheck = false; });
+  # networking.nftables.enable = true;
+  # services.tailscale.useRoutingFeatures = "server"; # or "client"
 
 ### RustDesk Server Info for NixOS
 
@@ -119,13 +146,13 @@
   wantedBy = [ "default.target" ];
 };
 
-virtualisation.spiceUSBRedirection.enable = true;
+
 
   # --- Enable Flatpak  ---
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
-  # --- Flatpak auto-update ---
+  # --- Flatpak auto-update ---#
   systemd.services."flatpak-update" = {
     description = "Update Flatpak applications";
     serviceConfig = {
@@ -147,9 +174,26 @@ virtualisation.spiceUSBRedirection.enable = true;
   # Enable Nix experimental features and Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Virt-manager
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
+# --- Virt-manager and libvirt ---#
+virtualisation.libvirtd = {
+  enable = true;
+  qemu = {
+    package = pkgs.qemu_kvm;
+    ovmf.enable = true;
+    swtpm.enable = true;
+  };
+};
+
+# Enables the setuid ACL helper needed for USB redirection
+virtualisation.spiceUSBRedirection.enable = true;
+
+# Polkit for virt-manager actions without root prompts
+security.polkit.enable = true;
+
+# Nice-to-have: ships desktop integration polkit rules for virt-manager
+programs.virt-manager.enable = true;
+
+
 
   # Enable common container config files in /etc/containers
   virtualisation.containers.enable = true;
@@ -167,67 +211,7 @@ virtualisation.spiceUSBRedirection.enable = true;
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-     gnome-software
-     wget
-     htop
-     google-chrome
-     # pkgs.tailscale
-     (pkgs.tailscale.overrideAttrs (_: { doCheck = false; }))
-     pciutils
-     yt-dlp
-     pkgs.cifs-utils
-     pkgs.samba
-     nmap
-     appimage-run
-     git
-     github-desktop
-     gnumake
-     unzip
-     zip
-     gnupg
-     distrobox
-     kitty
-     xorg.libXrandr
-     xorg.libxcb
-     ffmpeg-full
-     libevdev
-     libpulseaudio
-     xorg.libX11
-     pkgs.xorg.libxcb
-     xorg.libXfixes
-     libva
-     libvdpau
-     # trayscale
-     xdotool
-     pwvucontrol
-     easyeffects
-     pipecontrol
-     wireplumber
-     pavucontrol
-     ncpamixer
-     carla
-     neovim
-     vimPlugins.LazyVim
-     gh
-     gitui
-     cmake
-     ispell
-     gcc
-     go
-     geany
-     virt-manager
-     fastfetch
-     ghostty
-     mate.mate-terminal
-     fastfetch
-     starship
-     hexo-cli
-     hugo
-     jekyll
-     ghost-cli
-     marp-cli
-     mumble
+
   ];
 
 # --- Weekly Garbage CLeaner --- #
@@ -275,3 +259,4 @@ virtualisation.spiceUSBRedirection.enable = true;
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
+
