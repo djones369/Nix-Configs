@@ -60,6 +60,8 @@
       # PS1='\[\e[95m\]\u\[\e[0m\] \[\e[95m\]in\[\e[0m\] \[\e[95m\]\w\[\e[0m\] \[\e[95m\]\\$\[\e[0m\] '
     # '';
     shellAliases = {
+      switch = "sudo nixos-rebuild switch";
+      upgrade = "sudo nixos-rebuild switch --upgrade";
       btw = "echo I use NixOS btw";
       ll = "ls -alF";
       la = "ls -A";
@@ -71,13 +73,13 @@
   };
 
   # Optional: a modern prompt
-  programs.starship = {
-    enable = true; # set to true if you want starship
-    settings = {
-      add_newline = true;
-      character = { success_symbol = "➜ "; error_symbol = "✗ "; };
-    };
-  };
+  # programs.starship = {
+    # enable = true; # set to true if you want starship
+    # settings = {
+      # add_newline = true;
+      # character = { success_symbol = "➜ "; error_symbol = "✗ "; };
+    # };
+  # };
 
   ########################################
   # 5) Programs (CLI)
@@ -144,7 +146,8 @@
     menulibre
     rofi
     flameshot
-    
+    gnome-software
+    gnome-disk-utility
 
   ##### Security, Networking & Web Browsers#####
     gnupg
@@ -154,6 +157,7 @@
     tor-browser
     google-chrome
     brave
+    element-desktop
 
   ##### Audio & Multimedia #####
     vlc
@@ -199,6 +203,7 @@
     starship
     boxbuddy
     github-desktop
+    lmstudio
 
   ##### Static Site & Docs #####
     pandoc
