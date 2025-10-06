@@ -133,106 +133,117 @@
   ########################################
   home.packages = with pkgs; [
   ##### System Tools #####
-    htop
-    fastfetch
-    wget
-    unzip
-    zip
-    pciutils
-    nmap
-    distrobox
-    appimage-run
-    xdotool
-    menulibre
-    rofi
-    flameshot
-    gnome-software
-    gnome-disk-utility
+    htop  # interactive process viewer
+    fastfetch # fast system information tool
+    wget # network downloader
+    unzip # archive extractor
+    zip # archive creator
+    pciutils # PCI device utilities
+    nmap # Network mapper
+    distrobox # Container management tool
+    appimage-run # Run AppImage packages
+    xdotool # Simulate keyboard input and mouse activity
+    menulibre # Menu editor for desktop environments
+    rofi # Window switcher, application launcher, and dmenu replacement
+    flameshot # Screenshot tool
+    gnome-software # GNOME software center
+    gnome-disk-utility # Disk management utility
 
   ##### Security, Networking & Web Browsers#####
-    gnupg
-    cifs-utils
-    samba
-    tor
-    tor-browser
-    google-chrome
-    brave
-    element-desktop
+    gnupg # GPG for encryption & signing
+    cifs-utils # Utilities for mounting and managing CIFS/SMB shares
+    samba # SMB/CIFS file, print, and login server
+    tor # The Onion Router for anonymous communication
+    tor-browser # Web browser for accessing the Tor network
+    google-chrome # Google Chrome web browser
+    brave # Brave web browser
+    element-desktop # Element desktop client for Matrix
+    discord # Discord chat client
+    signal-desktop # Signal desktop client
+    telegram-desktop # Telegram desktop client
+    thunderbird # email client
+    filezilla # FTP client
+    remmina # remote desktop client
 
   ##### Audio & Multimedia #####
-    vlc
-    mpv
-    yt-dlp
-    carla
-    pwvucontrol
-    pipecontrol
-    wireplumber
-    pavucontrol
-    ncpamixer
-    easyeffects
-    ffmpeg-full
+    vlc # Multimedia player
+    mpv # Media player
+    yt-dlp # YouTube downloader
+    carla # Audio plugin host
+    pwvucontrol # PipeWire volume control
+    pipecontrol # PipeWire control tool
+    wireplumber # PipeWire session manager
+    pavucontrol # PulseAudio volume control
+    ncpamixer # Ncurses PulseAudio mixer
+    easyeffects # Audio effects processor
+    ffmpeg-full # Multimedia framework
 
   ##### Graphics & Design #####
-    gimp3-with-plugins
-    imagemagick
+    gimp3-with-plugins # GNU Image Manipulation Program
+    imagemagick # Image processing tools
 
   ##### Editors, Terminals & Notes #####
-    vim
-    vimPlugins.LazyVim
-    geany
-    vscode
-    zed-editor
-    obsidian
-    ghostty
-    mate.mate-terminal
-    alacritty
-    kitty
+    vim # Vi IMproved, a programmer's text editor
+    vimPlugins.LazyVim # Lazy loading plugin manager for Vim
+    geany # Lightweight IDE
+    vscode # Visual Studio Code
+    zed-editor # Zed text editor
+    obsidian # Obsidian note-taking app
+    ghostty # Ghost terminal emulator
+    mate.mate-terminal # MATE terminal emulator
+    alacritty # Alacritty terminal emulator
+    kitty # Kitty terminal emulator
 
   ##### Development Tools #####
-    git
-    gh
-    gitui
-    gnumake
-    cmake
-    gcc
+    git # Distributed version control system
+    gh # GitHub CLI tool
+    gitui # Terminal UI for Git
+    gnumake # GNU make utility
+    cmake # Cross-platform build system
+    gcc # GNU Compiler Collection
     # clang
-    go
-    ispell
+    go # Go programming language
+    ispell # Interactive spell checker
     nil          # Nix language server
-    shellcheck
-    starship
-    boxbuddy
-    github-desktop
-    lmstudio
+    shellcheck # Shell script analysis tool
+    starship # Cross-shell prompt
+    boxbuddy # Boxbuddy CLI tool
+    github-desktop # GitHub Desktop client
+    lmstudio # LM Studio IDE
 
   ##### Static Site & Docs #####
-    pandoc
-    texlive.combined.scheme-small
-    aspell
-    marp-cli
-    hexo-cli
-    hugo
-    jekyll
-    ghost-cli
+    pandoc # Document converter
+    texlive.combined.scheme-small # TeX Live LaTeX distribution
+    aspell # Spell checker
+    marp-cli # Markdown presentation tool
+    hexo-cli # Static site generator
+    hugo # Static site generator
+    jekyll # Static site generator
+    ghost-cli # Ghost blog CLI tool
 
   ##### Virtualization #####
-    virt-manager
-    virt-viewer
-    spice-gtk
-    usbredir
-    qemu
-    qemu_kvm
-    libvirt
-    swtpm
-    spice-protocol
-    spice-gtk
-    polkit_gnome
+    virt-manager # Virtual machine manager
+    virt-viewer # Virtual machine viewer
+    usbredir # USB redirection tool
+    qemu # QEMU emulator
+    qemu_kvm # QEMU KVM accelerator
+    libvirt # Virtualization API
+    swtpm # Software TPM emulator
+    spice-protocol # SPICE protocol definitions
+    spice-gtk # SPICE GTK client
+    polkit_gnome # GNOME Polkit authentication agent  
 
   ##### Password Manager #####
-    bitwarden-desktop
+    bitwarden-desktop # Bitwarden desktop client
 
   ##### Fonts #####
-    nerd-fonts.symbols-only
+    nerd-fonts.symbols-only # Nerd Fonts Symbols Only
+    nerd-fonts.fira-code # Fira Code Nerd Font
+    nerd-fonts.fira-mono # Fira Mono Nerd Font
+    nerd-fonts.roboto-mono # Roboto Mono Nerd Font
+    nerd-fonts.hack # Hack Nerd Font
+    nerd-fonts.inconsolata # Inconsolata Nerd Font
+    nerd-fonts.jetbrains-mono # JetBrains Mono Nerd Font
 
   ##### Emacs & Doom Emacs #####
     emacs
@@ -240,12 +251,12 @@
     emacsPackages.doom
     emacsPackages.doom-themes
     sqlite
+  ];  # <-- close the list AND add a semicolon
 
+  ########################################
+  # Neovim configuration (optional)
+  ########################################
 
-  ];
-
-  # Optional: let Home Manager manage Neovim (you can still keep it in home.packages)
-  programs.neovim.enable = true;
-
-
-}
+  # If you want HM to manage Neovim, uncomment:
+  # programs.neovim.enable = true;
+}  # <-- this is the ONE final brace that closes the top-level set
