@@ -80,8 +80,22 @@ in
   };
 
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # Enable CUPS to print documents & Avahi to allow other devices on the network to discover
+  services.avahi = {
+  enable = true;
+  nssmdns4 = true;
+  openFirewall = true;
+};
+
+services.printing = {
+  enable = true;
+  drivers = with pkgs; [
+    cups-filters
+    cups-browsed
+  ];
+};
+
+
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -122,6 +136,11 @@ in
   # Install firefox.
   programs.firefox.enable = true;
 
+  # Local Wordpress & Drupal
+  #--- Wordpress---#  
+  services.wordpress.sites."localhost" = {};
+
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -132,7 +151,6 @@ in
   # services.tailscale.useRoutingFeatures = "server"; # or "client"
 
 ### RustDesk Server Info for NixOS
-
   # Rustdesk Background Service
   systemd.user.services.rustdesk = {
   description = "RustDesk Remote Desktop Service";
