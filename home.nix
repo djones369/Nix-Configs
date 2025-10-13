@@ -60,6 +60,7 @@
       # PS1='\[\e[95m\]\u\[\e[0m\] \[\e[95m\]in\[\e[0m\] \[\e[95m\]\w\[\e[0m\] \[\e[95m\]\\$\[\e[0m\] '
     # '';
     shellAliases = {
+      test = "sudo nixos-rebuild test";
       switch = "sudo nixos-rebuild switch";
       upgrade = "sudo nixos-rebuild switch --upgrade";
       btw = "echo I use NixOS btw";
@@ -70,7 +71,14 @@
     };
     historyControl = [ "ignoredups" "ignorespace" ];
     enableCompletion = true;
-  };
+  bashrcExtra = ''
+    # Run fastfetch with the paleofetch config at terminal start
+    if command -v fastfetch >/dev/null 2>&1; then
+      fastfetch -c paleofetch
+    fi
+  '';
+};
+
 
   # Optional: a modern prompt
   # programs.starship = {
@@ -148,6 +156,7 @@
     flameshot # Screenshot tool
     gnome-software # GNOME software center
     gnome-disk-utility # Disk management utility
+    epsonscan2
 
   ##### Security, Networking & Web Browsers#####
     gnupg # GPG for encryption & signing
@@ -164,6 +173,7 @@
     thunderbird # email client
     filezilla # FTP client
     remmina # remote desktop client
+    
 
   ##### Audio & Multimedia #####
     vlc # Multimedia player
@@ -177,6 +187,10 @@
     ncpamixer # Ncurses PulseAudio mixer
     easyeffects # Audio effects processor
     ffmpeg-full # Multimedia framework
+    audacity # Audio editor
+    mumble # Low-latency voice chat
+    obs-studio # Open Broadcaster Software for streaming and recording
+    
 
   ##### Graphics & Design #####
     gimp3-with-plugins # GNU Image Manipulation Program
@@ -251,6 +265,11 @@
     emacsPackages.doom
     emacsPackages.doom-themes
     sqlite
+
+  ##### Qtile
+    lxappearance    
+
+
   ];  # <-- close the list AND add a semicolon
 
   ########################################
