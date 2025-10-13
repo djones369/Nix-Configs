@@ -13,6 +13,8 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       (import "${home-manager}/nixos")
+      # For wayland support see the following config
+      # ./qtile.nix
     ];
 
    home-manager.useUserPackages = true;
@@ -63,6 +65,15 @@ in
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.budgie.enable = true;
 
+  # Enable Cosmic Desktop environment 
+  # services.displayManager.sddm.enable = true;
+  # services.desktopManager.cosmic.enable = true;
+
+  # Enable the qtile window manager (optional; LightDM lets you pick it at login)
+  services.xserver.windowManager.qtile.enable = true;
+  services.xserver.windowManager.qtile.extraPackages = p: with p; [ qtile-extras ];
+
+  
   # NEW: autostart a polkit agent in your session (needed for virt-manager auth)
   services.xserver.displayManager.sessionCommands = ''
     if command -v /run/current-system/sw/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/dev/null; then
@@ -70,10 +81,7 @@ in
     fi
   '';
 
-  # Enable the qtile window manager (optional; LightDM lets you pick it at login)
-  services.xserver.windowManager.qtile.enable = true;
-
-  # Configure keymap in X11
+    # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
@@ -82,20 +90,24 @@ in
 
   # Enable CUPS to print documents & Avahi to allow other devices on the network to discover
   services.avahi = {
-  enable = true;
-  nssmdns4 = true;
-  openFirewall = true;
-};
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
-services.printing = {
-  enable = true;
-  drivers = with pkgs; [
-    cups-filters
-    cups-browsed
-  ];
-};
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [
+      cups-filters
+      cups-browsed
+    ];
+  };
 
-
+  # Enable Scanning
+  hardware.sane = {
+    enable = true;                      # enables scanner support
+    extraBackends = [ pkgs.epkowa ];    # Epson backend for ES-400
+  };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -120,7 +132,7 @@ services.printing = {
   users.users.dave = {
     isNormalUser = true;
     description = "Dave J";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "video" "kvm" "render" "audio" ];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "libvirtd" "video" "kvm" "render" "scanner" "lp" "audio" ];
     packages = with pkgs; [
     thunderbird
     rustdesk-flutter
